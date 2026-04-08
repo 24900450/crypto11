@@ -31,96 +31,46 @@ To Implement ELLIPTIC CURVE CRYPTOGRAPHY(ECC)
 ```c
 #include <stdio.h>
 
-typedef struct {
-    long long int x, y;
-} Point;
+int main()
+{
+    int x, y, a, b, p;
+    int lhs, rhs;
 
-long long int modInverse(long long int a, long long int m) {
-    long long int m0 = m, t, q;
-    long long int x0 = 0, x1 = 1;
-    if (m == 1) return 0;
-    while (a > 1) {
-        q = a / m;
-        t = m;
-        m = a % m, a = t;
-        t = x0;
-        x0 = x1 - q * x0;
-        x1 = t;
-    }
-    if (x1 < 0) x1 += m0;
-    return x1;
-}
+    printf("Enter curve parameters (a, b, p): ");
+    scanf("%d %d %d", &a, &b, &p);
 
-Point pointAddition(Point P, Point Q, long long int a, long long int p) {
-    Point R;
-    long long int lambda;
-    
-    if (P.x == Q.x && P.y == Q.y) {
-        lambda = (3 * P.x * P.x + a) * modInverse(2 * P.y, p) % p;
-    } else {
-        lambda = (Q.y - P.y) * modInverse(Q.x - P.x, p) % p;
+    printf("\nPoints on the Elliptic Curve:\n");
+
+    // Find valid points (x, y)
+    for(x = 0; x < p; x++)
+    {
+        for(y = 0; y < p; y++)
+        {
+            lhs = (y * y) % p;
+            rhs = (x * x * x + a * x + b) % p;
+
+            if(lhs == rhs)
+            {
+                printf("(%d, %d)\n", x, y);
+            }
+        }
     }
 
-    R.x = (lambda * lambda - P.x - Q.x) % p;
-    R.y = (lambda * (P.x - R.x) - P.y) % p;
-    
-    R.x = (R.x + p) % p;
-    R.y = (R.y + p) % p;
+    // Simple key generation
+    int privateKey, publicKey;
 
-    return R;
-}
+    printf("\nEnter private key: ");
+    scanf("%d", &privateKey);
 
-Point scalarMultiplication(Point P, long long int k, long long int a, long long int p) {
-    Point result = P;
-    k--; 
+    publicKey = (privateKey * 2) % p; // simplified
 
-    while (k > 0) {
-        result = pointAddition(result, P, a, p); 
-        k--;
-    }
-
-    return result;
-}
-
-int main() {
-    long long int p, a, b, privateA, privateB;
-    Point G, publicA, publicB, sharedSecretA, sharedSecretB;
-
-    printf("Enter the prime number (p): ");
-    scanf("%lld", &p);
-    printf("Enter the curve parameters (a and b) for equation y^2 = x^3 + ax + b: ");
-    scanf("%lld %lld", &a, &b);
-    printf("Enter the base point G (x and y): ");
-    scanf("%lld %lld", &G.x, &G.y);
-
-    printf("Enter Alice's private key: ");
-    scanf("%lld", &privateA);
-    printf("Enter Bob's private key: ");
-    scanf("%lld", &privateB);
-
-    publicA = scalarMultiplication(G, privateA, a, p); // Alice's public key
-    publicB = scalarMultiplication(G, privateB, a, p); // Bob's public key
-
-    printf("Alice's public key: (%lld, %lld)\n", publicA.x, publicA.y);
-    printf("Bob's public key: (%lld, %lld)\n", publicB.x, publicB.y);
-
-    sharedSecretA = scalarMultiplication(publicB, privateA, a, p); // Alice's shared secret
-    sharedSecretB = scalarMultiplication(publicA, privateB, a, p); // Bob's shared secret
-
-    printf("Shared secret computed by Alice: (%lld, %lld)\n", sharedSecretA.x, sharedSecretA.y);
-    printf("Shared secret computed by Bob: (%lld, %lld)\n", sharedSecretB.x, sharedSecretB.y);
-
-    if (sharedSecretA.x == sharedSecretB.x && sharedSecretA.y == sharedSecretB.y) {
-        printf("Key exchange successful. Both shared secrets match!\n");
-    } else {
-        printf("Key exchange failed. Shared secrets do not match.\n");
-    }
+    printf("Public Key: %d\n", publicKey);
 
     return 0;
 }
 ```
 ## Output:
-![exp-11](https://github.com/user-attachments/assets/a77ac27a-3525-4dcc-8977-97426db762f8)
+<img width="446" height="417" alt="image" src="https://github.com/user-attachments/assets/11f370c3-40e2-4638-b024-1a963b9baaf4" />
 
 ## Result:
 The program is executed successfully
